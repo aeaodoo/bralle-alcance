@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="QuotationListExtension" owl="1"
+       t-inherit="point_of_sale.ProductsWidget"
+       t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('products-widget')]" position="replace">
+            <QuotationList/>
+        </xpath>
+    </t>
+
+    <t t-name="QuotationCustomerButtonDisable"
+       t-inherit="point_of_sale.ActionpadWidget"
+       t-inherit-mode="extension">
+        <xpath expr="//button[hasclass('set-customer')]" position="attributes">
+            <attribute name="disabled">true</attribute>
+            <attribute name="style">cursor: default;</attribute>
+        </xpath>
+    </t>
+
+    <t t-name="QuotationList" owl="1">
+        <div class="quotation-list">
+            <div class="header">
+                <span>Cotizaciones</span>
+                <button t-on-click="retrieveQuotations()">Actualizar</button>
+            </div>
+            <div class="quotations">
+                <div class="quotation header name">
+                    Nombre
+                </div>
+                <div class="quotation header date">
+                    Fecha
+                </div>
+                <div class="quotation header vendedor">
+                    Vendedor
+                </div>
+                <div class="quotation header status">
+                    Estatus
+                </div>
+            </div>
+            <t t-foreach="state.quotations" t-as="q" t-key="q.id">
+                <div t-attf-class="quotations {{ (q.id === state.selected) ? 'selected' : '' }}"
+                     t-on-click="addOrder(q)">
+                    <div class="quotation name">
+                        <t t-esc="q.name"/>
+                    </div>
+                    <div class="quotation date">
+                        <t t-esc="q.date_order"/>
+                    </div>
+                    <div class="quotation vendedor">
+                        <t t-esc="q.vendedor"/>
+                    </div>
+                    <div class="quotation status">
+                        <t t-if="q.state !== 'sale'">
+                            <button t-on-click="confirmQuotation(q.id)">Confirmar</button>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+
+</templates>

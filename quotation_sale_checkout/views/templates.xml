@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="assets" inherit_id="point_of_sale.assets">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/quotation_sale_checkout/static/src/js/models.js"/>
+                <script type="text/javascript" src="/quotation_sale_checkout/static/src/js/quotation_pos.js"/>
+                <script type="text/javascript" src="/quotation_sale_checkout/static/src/js/pos_invoice_custom_rfc.js"/>
+                <script type="text/javascript"
+                        src="/quotation_sale_checkout/static/src/js/pos_invoice_rfc_selection.js"/>
+                <script type="text/javascript"
+                        src="/quotation_sale_checkout/static/src/js/pos_invoice_new_rfc_popup.js"/>
+                <script type="text/javascript"
+                        src="/quotation_sale_checkout/static/src/js/pos_sale_validation.js"/>
+                <link rel="stylesheet" href="/quotation_sale_checkout/static/src/scss/quotation_pos.scss"/>
+            </xpath>
+        </template>
+
+        <template id="quotation_sale_order_barcode"
+                  inherit_id="sale.report_saleorder_document">
+            <xpath expr="//div[hasclass('page')]//div[hasclass('clearfix')]"
+                   position="after">
+                <div class="text-right">
+                    <div class="text-center d-block">
+                        <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('EAN13', doc.order_barcode, 200, 100)"/>
+                        <span class="d-block" t-esc="doc.order_barcode"/>
+                    </div>
+                </div>
+            </xpath>
+        </template>
+
+        <template id="report_invoice_custom_rfc"
+                  inherit_id="account.report_invoice_document">
+            <xpath expr="//t[@t-set='address']" position="replace">
+                <div>
+                    <div>
+                        <span t-field="o.rfc_id.nombre"/>
+                        <br/>
+                        <span t-field="o.rfc_id.rfc"/>
+                        <br/>
+                        <span t-field="o.rfc_id.address"/>
+                        <br/>
+                        <span t-field="o.rfc_id.city"/>
+                        <br/>
+                        <span t-field="o.rfc_id.state_id"/>
+                        <span t-field="o.rfc_id.country_id"/>
+                    </div>
+                </div>
+            </xpath>
+        </template>
+    </data>
+
+    <record model="ir.ui.view" id="view_order_form_related_pos">
+        <field name="name">view.order.form.related_pos_order</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook//page[@name='other_information']" position="after">
+                <page string="Venta PoS" name="venta_pos">
+                    <group modifiers="{}">
+                        <field name="pos_orders" readonly="1"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_order_form_order_rfc">
+        <field name="name">view.order.form.order_rfc</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="rfc_id"
+                       domain="[('partner_id', '=', partner_id)]"
+                       context="{'default_partner_id': partner_id}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <template id="assets_backend_rfc" name="autocomplete_rfc_assets" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <script type="text/javascript" src="/quotation_sale_checkout/static/src/js/customer_autocomplete_rfc.js"/>
+        </xpath>
+    </template>
+
+    <record model="ir.ui.view" id="view_partner_form_rfc">
+        <field name="name">view.partner.form.rfc</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[@name='internal_notes']" position="after">
+                <page name="rfcs" string="RFCs">
+                    <field name="rfc_ids">
+                        <tree editable="bottom">
+                            <field name="rfc"/>
+                            <field name="nombre" widget="autocomplete-rfc-field"/>
+                            <field name="address"/>
+                            <field name="zip"/>
+                            <field name="phone"/>
+                            <field name="email"/>
+                            <field name="city"/>
+                            <field name="state_id"/>
+                            <field name="country_id"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_account_move_rfc">
+        <field name="name">view.move.rfc</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="rfc_id"
+                       domain="[('partner_id', '=', partner_id)]"
+                       context="{'default_partner_id': partner_id}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_order_form_paid_in_pos">
+        <field name="name">view.order.form.paid_in_pos</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="pos_paid" widget="text" string="Pagado en PdV" readonly="1"
+                       attrs="{'invisible': [('pos_paid', '=', False)]}"
+                />
+            </xpath>
+        </field>
+    </record>
+    <record id="customer_multi_search_view" model="ir.ui.view">
+        <field name="name">Search</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="name" string="Clave alterna"
+                       filter_domain="[('cve_interna','ilike', self)]"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="mail_template_sale_confirmation_no_attachment" model="mail.template">
+        <field name="name">Sale Order: Confirmation Email No Attachment</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="subject">${object.company_id.name}
+            ${(object.get_portal_last_transaction().state == 'pending') and 'Pending Order' or 'Order'} (Ref
+            ${object.name or 'n/a' })
+        </field>
+        <field name="email_from">${(object.user_id.email_formatted or user.email_formatted) | safe}</field>
+        <field name="partner_to">${object.partner_id.id}</field>
+        <field name="body_html" type="html">
+            <div style="margin: 0px; padding: 0px;">
+                <p style="margin: 0px; padding: 0px; font-size: 12px;">
+                    Hello,
+                    <br/>
+                    <br/>
+                    % set transaction = object.get_portal_last_transaction()
+                    Your order <strong>${object.name}</strong> amounting in
+                    <strong>${format_amount(object.amount_total, object.currency_id)}</strong>
+                    % if object.state == 'sale' or (transaction and transaction.state in ('done', 'authorized')) :
+                    has been confirmed.
+                    <br/>
+                    Thank you for your trust!
+                    % elif transaction and transaction.state == 'pending' :
+                    is pending. It will be confirmed when the payment is received.
+                    % if object.reference:
+                    Your payment reference is <strong>${object.reference}</strong>.
+                    % endif
+                    % endif
+                    <br/>
+                    <br/>
+                    Do not hesitate to contact us if you have any questions.
+                    <br/>
+                    <br/>
+                </p>
+                <!--                 if object.website_id:-->
+                <div style="margin: 0px; padding: 0px;">
+                    <table width="100%" style="color: #454748; font-size: 12px; border-collapse: collapse;">
+                        <tr style="border-bottom: 2px solid #dee2e6;">
+                            <td style="width: 150px;">
+                                <strong>Products</strong>
+                            </td>
+                            <td></td>
+                            <td width="15%" align="center">
+                                <strong>Quantity</strong>
+                            </td>
+                            <td width="20%" align="right">
+                                <strong>
+                                    % if object.user_id.has_group('account.group_show_line_subtotals_tax_excluded'):
+                                    VAT Excl.
+                                    % else
+                                    VAT Incl.
+                                    % endif
+                                </strong>
+                            </td>
+                        </tr>
+                    </table>
+                    % for line in object.order_line:
+                    % if not line.is_delivery and line.display_type in ['line_section', 'line_note']:
+                    <table width="100%" style="color: #454748; font-size: 12px; border-collapse: collapse;">
+                        <tr style="${loop.cycle('background-color: #f2f2f2', 'background-color: #ffffff')}">
+                            <td colspan="4">
+                                % if line.display_type == 'line_section':
+                                <strong>${line.name}</strong>
+                                % elif line.display_type == 'line_note':
+                                <i>${line.name}</i>
+                                % endif
+                            </td>
+                        </tr>
+                    </table>
+                    % elif not line.is_delivery
+                    <table width="100%" style="color: #454748; font-size: 12px; border-collapse: collapse;">
+                        <tr style="${loop.cycle('background-color: #f2f2f2', 'background-color: #ffffff')}">
+                            <td style="width: 150px;">
+                                <img src="/web/image/product.product/${line.product_id.id}/image_128"
+                                     style="width: 64px; height: 64px; object-fit: contain;" alt="Product image"></img>
+                            </td>
+                            <td align="left">${line.product_id.name}</td>
+                            <td width="15%" align="center">${line.product_uom_qty}</td>
+                            <td width="20%" align="right">
+                                <strong>
+                                    % if object.user_id.has_group('account.group_show_line_subtotals_tax_excluded'):
+                                    ${format_amount(line.price_reduce_taxexcl, object.currency_id)}
+                                    % else
+                                    ${format_amount(line.price_reduce_taxinc, object.currency_id)}
+                                    % endif
+                                </strong>
+                            </td>
+                        </tr>
+                    </table>
+                    % endif
+                    % endfor
+                </div>
+                <div style="margin: 0px; padding: 0px;">
+                    <table width="100%" style="color: #454748; font-size: 12px; border-spacing: 0px 4px;" align="right">
+                        <tr>
+                            <td style="width: 60%"/>
+                            <td style="width: 30%; border-top: 1px solid #dee2e6;" align="right">
+                                <strong>SubTotal:</strong>
+                            </td>
+                            <td style="width: 10%; border-top: 1px solid #dee2e6;" align="right">
+                                ${format_amount(object.amount_untaxed, object.currency_id)}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <!--                 endif-->
+                <div style="margin: 0px; padding: 0px;">
+                    <table width="100%" style="color: #454748; font-size: 12px; border-spacing: 0px 4px;" align="right">
+                        <tr>
+                            <td style="width: 60%"/>
+                            <td style="width: 30%;" align="right">
+                                <strong>Taxes:</strong>
+                            </td>
+                            <td style="width: 10%;" align="right">
+                                ${format_amount(object.amount_tax, object.currency_id)}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 60%"/>
+                            <td style="width: 30%; border-top: 1px solid #dee2e6;" align="right">
+                                <strong>Total:</strong>
+                            </td>
+                            <td style="width: 10%; border-top: 1px solid #dee2e6;" align="right">
+                                ${format_amount(object.amount_total, object.currency_id)}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                % if object.partner_invoice_id:
+                <div style="margin: 0px; padding: 0px;">
+                    <table width="100%" style="color: #454748; font-size: 12px;">
+                        <tr>
+                            <td style="padding-top: 10px;">
+                                <strong>Bill to:</strong>
+                                ${object.partner_invoice_id.street or ''}
+                                ${object.partner_invoice_id.city or ''}
+                                ${object.partner_invoice_id.state_id.name or ''}
+                                ${object.partner_invoice_id.zip or ''}
+                                ${object.partner_invoice_id.country_id.name or ''}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Payment Method:</strong>
+                                % if transaction.payment_token_id:
+                                ${transaction.payment_token_id.name}
+                                % else:
+                                ${transaction.acquirer_id.name}
+                                % endif
+                                (${format_amount(transaction.amount, object.currency_id)})
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <!--                % endif-->
+                % if object.partner_shipping_id and not object.only_services:
+                <div style="margin: 0px; padding: 0px;">
+                    <table width="100%" style="color: #454748; font-size: 12px;">
+                        <tr>
+                            <td>
+                                <br/>
+                                <strong>Ship to:</strong>
+                                ${object.partner_shipping_id.street or ''}
+                                ${object.partner_shipping_id.city or ''}
+                                ${object.partner_shipping_id.state_id.name or ''}
+                                ${object.partner_shipping_id.zip or ''}
+                                ${object.partner_shipping_id.country_id.name or ''}
+                            </td>
+                        </tr>
+                    </table>
+                    % if object.carrier_id:
+                    <table width="100%" style="color: #454748; font-size: 12px;">
+                        <tr>
+                            <td>
+                                <strong>Shipping Method:</strong>
+                                ${object.carrier_id.name}
+                                % if object.carrier_id.fixed_price == 0.0:
+                                (Free)
+                                % else:
+                                (${format_amount(object.carrier_id.fixed_price, object.currency_id)})
+                                % endif
+                            </td>
+                        </tr>
+                    </table>
+                    % endif
+                </div>
+                % endif
+                % endif
+            </div>
+        </field>
+        <field name="lang">${object.partner_id.lang}</field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <record model="ir.ui.view" id="view_product_form_cve_interna">
+        <field name="name">view.product.form.cve_interna</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='default_code']" position="after">
+                <field name="cve_interna"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

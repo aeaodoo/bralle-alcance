@@ -1,0 +1,60 @@
+.quotation-list {
+  display: flex;
+  flex-grow: 1.5;
+  flex-direction: column;
+  overflow-y: scroll;
+}
+
+.quotation-list > .header {
+  padding: 1em 0.5em;
+  background-color: #d3d3d3;
+  font-size: 1.4em;
+  border-bottom: solid 3px rgb(110, 200, 155);
+  text-align: left;
+  display: flex;
+  align-content: center;
+  justify-content: space-between;
+}
+
+.quotation-list > .quotations {
+  display: grid;
+  grid-template-columns: [name] 50% [date] 20% [vendedor] 20% [status] 10%;
+}
+
+.quotation-list .quotations .quotation {
+  padding: 1em 0.5em;
+  border-bottom: solid 2px #b2b2b2;
+}
+
+.quotation {
+  cursor: pointer;
+}
+
+.quotations.selected {
+  background-color: rgba(140, 143, 183, 0.2);
+}
+
+.quotation.header {
+  background-color: #d3d3d3;
+  font-size: 1.2em;
+}
+
+.quotation.name {
+  grid-area: name;
+}
+
+.quotation.date {
+  grid-area: date;
+}
+
+.quotation.price {
+  grid-area: price;
+}
+
+.quotation.vendedor {
+  grid-area: vendedor;
+}
+
+.quotation.status {
+  grid-area: status;
+}

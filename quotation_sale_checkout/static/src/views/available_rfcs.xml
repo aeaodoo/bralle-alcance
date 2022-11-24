@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+   <t t-name="InvoiceCustomRFCInjector" owl="1"
+      t-inherit="point_of_sale.PaymentScreen"
+      t-inherit-mode="extension">
+       <xpath expr="//div[@class='payment-controls']" position="inside">
+         <div t-if="currentOrder.is_to_invoice() and env.pos.get_client()">
+<!--             <CustomRFCWidget/>-->
+         </div>
+      </xpath>
+   </t>
+
+    <t t-name="CustomRFCWidget" owl="1">
+        <div class="button" t-on-click="selectRFC">
+            <t t-esc="currentOrderRFC()"/>
+        </div>
+    </t>
+
+    <t t-name="RFCSelectionPopup" owl="1">
+        <div role="dialog" class="modal-dialog">
+            <Draggable>
+                <div class="popup popup-selection">
+                    <header class="title drag-handle">
+                        <t t-esc="props.title"/>
+                    </header>
+                    <div class="searchbox-client" style="display: block; border-radius:0.5em">
+                        <input placeholder="Buscar RFC"
+                               style="border-radius: 0.5em"
+                               size="1"
+                               t-on-keyup="updateRFCList"/>
+                    </div>
+                    <div class="selection scrollable-y">
+                        <t t-foreach="items" t-as="item" t-key="item.id">
+                            <div class="selection-item" t-att-class="{ selected: item.isSelected }"
+                                 t-on-click="selectItem(item.id)">
+                                <t t-esc="item.label"/>
+                            </div>
+                        </t>
+                    </div>
+                    <footer class="footer">
+                        <div class="button"
+                             style="float: left; margin-left: 10px"
+                             t-on-click="newRFC">
+                           Nuevo RFC
+                        </div>
+                        <div class="button cancel" t-on-click="cancel">
+                            <t t-esc="props.cancelText"/>
+                        </div>
+                    </footer>
+                </div>
+            </Draggable>
+        </div>
+    </t>
+
+    <t t-name="NewRFCPopup" owl="1">
+        <div role="dialog" class="modal-dialog">
+            <Draggable>
+                <div class="popup popup-selection">
+                    <header class="title drag-handle">
+                        Nuevo RFC
+                    </header>
+                    <main class="body traceback" style="font-family: 'Lato-Reg';">
+                        <label style="margin: 10px 0 20px; display: flex; align-items: center;">
+                            <span style="margin-right: 10px; width: 60px">Nombre</span>
+                            <input id="rfc_nombre" type="text" class="input-field" name="rfc_nombre"
+                                   style="border-radius: 0.5em"/>
+                        </label>
+                        <label style="margin: 10px 0 20px; display: flex; align-items: center;">
+                            <span style="margin-right: 10px; width: 60px">RFC</span>
+                            <input id="rfc_rfc" type="text" class="input-field" name="rfc_rfc"
+                                   style="border-radius: 0.5em"/>
+                        </label>
+                        <label style="margin: 10px 0 20px; display: flex; align-items: center;">
+                            <span style="margin-right: 10px; width: 60px;">Direccion</span>
+                            <input id="rfc_direccion" type="text" class="input-field" name="rfc_direccion"
+                                   style="border-radius: 0.5em"/>
+                        </label>
+                        <label style="margin: 10px 0 20px; display: flex; align-items: center;">
+                            <span style="margin-right: 10px; width: 60px;">Email</span>
+                            <input id="rfc_email" type="text" class="input-field" name="rfc_email"
+                                   style="border-radius: 0.5em"/>
+                        </label>
+					</main>
+                    <footer class="footer">
+                        <div class="button cancel" t-on-click="cancel"
+                             style="float: left; margin-left: 10px">
+                            Cancelar
+                        </div>
+                        <div class="button"
+                             t-on-click="newRFC">
+                           Nuevo RFC
+                        </div>
+                    </footer>
+                </div>
+            </Draggable>
+        </div>
+    </t>
+</templates>

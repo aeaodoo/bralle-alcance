@@ -1,0 +1,50 @@
+<odoo>
+    <data>
+        <record id="action_secondary_journal" model="ir.actions.act_window">
+            <field name="name">Settings</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+            <field name="context">{'module': 'secondary_journal'}</field>
+        </record>
+        <record id="qsc_secondary_journal_settings" model="ir.ui.view">
+            <field name="name">res.config.view.inherited.qsc_data</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="30" />
+            <field name="inherit_id" ref="base.res_config_settings_view_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//div[hasclass('settings')]" position="inside">
+                    <div class="app_settings_block" data-string="secondary_journal"
+                    string="Diario secundario" data-key="secondary_journal">
+                        <h2>Diario secundario</h2>
+                        <div class="row mt16 o_settings_container">
+                            <div class="col-12 col-lg-6 o_settings_box">
+                                <div class="o_setting_left_pane" />
+                                <div>
+                                    <span class="o_form_label">
+                                        Habilitado
+                                    </span>
+                                    <div class="text-muted">
+                                       Habilita diario (Journal) secundario.
+                                    </div>
+                                    <div>
+                                       <field name="secondary_accounting_enabled" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="o_form_label">
+                                        Diario secundario
+                                    </span>
+                                    <div>
+                                        <field name="secondary_journal_id" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
